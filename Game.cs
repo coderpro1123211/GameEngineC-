@@ -72,7 +72,12 @@ namespace GameEngine
 
                 SceneManager.UpdateScene(Time.deltaTime, true);
                 Thread.Sleep(100);
-                #endregion
+                #endregion     
+
+                if (InputManager.lastKeys == null) {
+                    InputManager.lastKeys = new List<ConsoleKeyInfo>();
+                }
+
                 InputManager.lastKeys.Clear();
                 InputManager.lastKeys.AddRange(keys);
                 timer.Stop();
