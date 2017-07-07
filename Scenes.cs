@@ -11,6 +11,12 @@ namespace GameEngine
         internal static List<Scene> Scenes { get; private set; } = new List<Scene>();
         internal static int currentScene { get; private set; } = 0;
 
+        public static Scene CurrentScene {
+            get {
+                return Scenes[currentScene];
+            }
+        }
+
         internal static void RenderCurrentScene(IDisplay display) {
             Scenes[currentScene].RenderScene(display);
         }
@@ -56,6 +62,8 @@ namespace GameEngine
                 for (int j = 0; j < Objects[i].Behaviours.Count; j++) {
                     if (beforeRender) Objects[i].Behaviours[j].Update();
                     else Objects[i].Behaviours[j].LateUpdate();
+
+                    Objects[i].UpdateClipPos();
                 }
             }
         }
