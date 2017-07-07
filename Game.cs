@@ -47,7 +47,7 @@ namespace GameEngine
         {
             SceneManager.AddScene(new Scene(new GameObject[] {new GameObject(new AsciiRenderable(ConsoleColor.Green, ConsoleColor.Black, 85/2, 25/2, new char[,] {{'§', '#', '§'}, {'#', '#', '#'}, {'§', '#', '§'}}), 1, 0, new Player()), new GameObject(new AsciiRenderable(ConsoleColor.Gray, ConsoleColor.Black, 85 / 2, 25 / 2, new char[,] { {'¤'} }), 2, 2, new Wall(), Builtin.Collision) }));
             keys = new List<ConsoleKeyInfo>();
-            __InputManager_OLDDONTUSEEVERAGAIN.lastKeys = new List<ConsoleKeyInfo>();
+            InputManager.lastKeys = new List<ConsoleKeyInfo>();
             Console.CursorVisible = false;
             timer = new Stopwatch();
             worker = new Thread(WorkerLoop);
@@ -78,7 +78,7 @@ namespace GameEngine
                 if (Console.KeyAvailable) {
                     while (Console.KeyAvailable) keys.Add(Console.ReadKey(true));
                 }
-                __InputManager_OLDDONTUSEEVERAGAIN.keys = keys;
+                InputManager.keys = keys;
 
 #region Thread Work
                 SceneManager.UpdateScene(Time.deltaTime, true);
@@ -91,19 +91,19 @@ namespace GameEngine
                 Thread.Sleep(10);    
 #endregion
 
-                if (__InputManager_OLDDONTUSEEVERAGAIN.lastKeys == null) {
-                    __InputManager_OLDDONTUSEEVERAGAIN.lastKeys = new List<ConsoleKeyInfo>();
+                if (InputManager.lastKeys == null) {
+                    InputManager.lastKeys = new List<ConsoleKeyInfo>();
                 }
 
-                __InputManager_OLDDONTUSEEVERAGAIN.lastKeys.Clear();
-                __InputManager_OLDDONTUSEEVERAGAIN.lastKeys.AddRange(keys);
+                InputManager.lastKeys.Clear();
+                InputManager.lastKeys.AddRange(keys);
                 timer.Stop();
                 Time.deltaTime = timer.ElapsedMilliseconds / 1000f;
             }
         }
     }
 
-    public static class __InputManager_OLDDONTUSEEVERAGAIN {
+    public static class InputManager {
         internal static List<ConsoleKeyInfo> lastKeys;
         internal static List<ConsoleKeyInfo> keys;
 
@@ -113,22 +113,6 @@ namespace GameEngine
             }
         }
 
-        public static bool GetKey(ConsoleKey key) {
-            return (from k in keys where k.Key == key select k).Count() > 0;
-        }
-
-        public static bool GetKeyPressed(ConsoleKey key)
-        {
-            return ((from k in keys where k.Key == key select k).Count() == 1) && ((from k in lastKeys where k.Key == key select k).Count() == 0);
-        }
-
-        public static bool GetKeyReleased(ConsoleKey key)
-        {
-            return ((from k in keys where k.Key == key select k).Count() < 1) && ((from k in lastKeys where k.Key == key select k).Count() > 0);
-        }
-    }
-
-    public static class InputManager {
         public static bool GetKey(ConsoleKey key) {
             return (from k in keys where k.Key == key select k).Count() > 0;
         }

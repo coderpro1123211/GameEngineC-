@@ -18,6 +18,8 @@ namespace GameEngine
             int height = (int)FileData[4];
             Console.Write("Width: " + width + "   Height: " + height);
             Console.ReadLine();
+
+            return 0;
         }
     }
 
