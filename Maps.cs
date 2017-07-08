@@ -14,16 +14,18 @@ namespace GameEngine
         internal static List<Map> Maps { get => maps; set => maps = value; }
 
         public static int loadMapFromFile(string path, Type[] mapInsts) {
-            Console.WriteLine(mapInsts[0]);
             System.IO.File.SetAttributes(path, System.IO.FileAttributes.Normal);
             var fileData = System.IO.File.ReadAllText(path);
-            int width = int.Parse(fileData[0].ToString());
-            int height = int.Parse(fileData[3].ToString());
+            fileData = fileData.Replace(" ", "").Replace(Environment.NewLine, "");
+            Console.WriteLine(fileData);
+            string[] aFileData = fileData.Split(',');
+            int width = int.Parse(aFileData[0].ToString());
+            int height = int.Parse(aFileData[1].ToString());
+            List<string> lFileData = aFileData.ToList<string>();
+            lFileData.RemoveRange(0, 2);
+            aFileData = lFileData.ToArray<string>();
             Console.WriteLine("Width: " + width + "  Height: " + height);
             int[,] mapData = new int[width, height];
-
-            fileData = fileData.Substring(6).Replace(" ", "").Replace(Environment.NewLine, "");
-            string[] aFileData = fileData.Split(',');
 
             for (int y = 0; y < height; y++)
             { 
