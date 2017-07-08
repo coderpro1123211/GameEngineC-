@@ -43,7 +43,7 @@ namespace GameEngine
             currentScene = sceneNumber;
         }
 
-        public static void LoadMap(int id)
+        public static void LoadMap(int id, int xOffset, int yOffset)
         {
             Console.WriteLine("Loading map");
             Map map = MapManager.Maps[id];
@@ -55,7 +55,7 @@ namespace GameEngine
                     Console.WriteLine("Doi");
                     if (map.mapData[x, y] != null)
                     {
-                        Scenes[currentScene].addInstance((GameObject)Activator.CreateInstance(map.mapData[x, y], x, y));
+                        Scenes[currentScene].addInstance((GameObject)Activator.CreateInstance(map.mapData[x, y], x+xOffset, y+yOffset));
                     }
                 }
             }
