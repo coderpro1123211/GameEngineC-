@@ -45,7 +45,13 @@ namespace GameEngine
 
         internal static void Start()
         {
-            SceneManager.AddScene(new Scene(new GameObject[] {new GameObject(new AsciiRenderable(ConsoleColor.Green, ConsoleColor.Black, 85/2, 25/2, new char[,] {{'§', '#', '§'}, {'#', '#', '#'}, {'§', '#', '§'}}), 1, 0, new Player()), new GameObject(new AsciiRenderable(ConsoleColor.Gray, ConsoleColor.Black, 85 / 2, 25 / 2, new char[,] { {'¤'} }), 2, 2, new Wall(), Builtin.Collision) }));
+            SceneManager.AddScene(new Scene(new GameObject[0]));
+            Type[] types = new Type[2];
+            types[0] = typeof(Player);
+            types[1] = typeof(Wall);
+            SceneManager.AddScene(new Scene());
+            MapManager.loadMapFromFile(@"C:\Users\Alexander\Source\Repos\GameEngineC-2\Maps\map.txt", types);
+            SceneManager.LoadMap(0);
             keys = new List<ConsoleKeyInfo>();
             InputManager.lastKeys = new List<ConsoleKeyInfo>();
             Console.CursorVisible = false;

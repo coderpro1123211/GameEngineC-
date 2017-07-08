@@ -17,8 +17,12 @@ namespace GameEngine
             }
         }
 
-        internal static void RenderCurrentScene(IDisplay display) {
-            Scenes[currentScene].RenderScene(display);
+        internal static void RenderCurrentScene(IDisplay display)
+        {
+            if (Scenes[currentScene].Objects != null)
+            {
+                Scenes[currentScene].RenderScene(display);
+            }
         }
 
         public static void AddScene(Scene scene)
@@ -28,12 +32,33 @@ namespace GameEngine
 
         internal static void UpdateScene(double deltaTime, bool beforeRender)
         {
-            Scenes[currentScene].Update(deltaTime, beforeRender);
+            if (Scenes[currentScene].Objects != null)
+            {
+                Scenes[currentScene].Update(deltaTime, beforeRender);
+            }
         }
 
         public static void GoToScene(int sceneNumber)
         {
             currentScene = sceneNumber;
+        }
+
+        public static void LoadMap(int id)
+        {
+            Console.WriteLine("Loading map");
+            Map map = MapManager.Maps[id];
+            
+            for (int x=0;x<map.mapData.GetLength(0);x++)
+            {
+                for (int y = 0; y < map.mapData.GetLength(1); y++)
+                {
+                    Console.WriteLine("Doi");
+                    if (map.mapData[x, y] != null)
+                    {
+                        Scenes[currentScene].addInstance((GameObject)Activator.CreateInstance(map.mapData[x, y], x, y));
+                    }
+                }
+            }
         }
     }
 
@@ -44,6 +69,7 @@ namespace GameEngine
         public Scene(params GameObject[] objects)
         {
             Objects = new List<GameObject>(objects);
+            
         }
 
         internal void addInstance(GameObject obj)

@@ -10,8 +10,6 @@ namespace GameEngine
     {
         static void Main(string[] args)
         {
-            MapManager.loadMapFromFile("Z:/Oskar/Dev/Games/C# Game Engine/Game engine/Maps/map.txt", new List<Type>());
-
             Console.WriteLine(Console.BufferHeight + " - " + Console.BufferWidth);
             Console.BufferHeight = Console.WindowHeight = 25;
             Console.BufferWidth = Console.WindowWidth = 85;
@@ -22,7 +20,7 @@ namespace GameEngine
     }
 
     //Object classes
-    public class Player : Behaviour
+    public class PlayerBehaviour: Behaviour
     {
 
         public override void OnCreate()
@@ -53,19 +51,19 @@ namespace GameEngine
                 //gameObject.x += 5 * Time.deltaTime;
             }
 
-            if (InputManager.GetKey(ConsoleKey.J))
+            if (InputManager.GetKey(ConsoleKey.LeftArrow))
             {
                 Game.cameraPosition += Position.left * 5 * Time.deltaTime;
             }
-            else if (InputManager.GetKey(ConsoleKey.L))
+            else if (InputManager.GetKey(ConsoleKey.RightArrow))
             {
                 Game.cameraPosition += Position.right * 5 * Time.deltaTime;
             }
-            else if (InputManager.GetKey(ConsoleKey.I))
+            else if (InputManager.GetKey(ConsoleKey.UpArrow))
             {
                 Game.cameraPosition += Position.up * 5 * Time.deltaTime;
             }
-            else if (InputManager.GetKey(ConsoleKey.K))
+            else if (InputManager.GetKey(ConsoleKey.DownArrow))
             {
                 Game.cameraPosition += Position.down * 5 * Time.deltaTime;
             }
@@ -77,7 +75,15 @@ namespace GameEngine
         }
     }
 
-    public class Wall : Behaviour
+    public class Player: GameObject
+    {
+        public Player(float x, float y) : base(new AsciiRenderable(ConsoleColor.Green, ConsoleColor.Black, 85 / 2, 25 / 2, new char[,] { { '§', '#', '§' }, { '#', '#', '#' }, { '§', '#', '§' } }), x, y, new PlayerBehaviour())
+        {
+
+        }
+    }
+
+    public class WallBehaviour : Behaviour
     {
         public override void LateUpdate()
         {
@@ -92,6 +98,14 @@ namespace GameEngine
         public override void Update()
         {
 
+        }
+    }
+
+    public class Wall : GameObject
+    {
+        public Wall(float x, float y) : base(new AsciiRenderable(ConsoleColor.Gray, ConsoleColor.Black, 85 / 2, 25 / 2, new char[,] { { '¤' } }), x, y, new WallBehaviour(), Builtin.Collision)
+        {
+            
         }
     }
 }
