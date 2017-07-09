@@ -6,6 +6,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
+using Microsoft.Win32.SafeHandles;
+using System.ComponentModel;
 
 namespace GameEngine
 {
@@ -22,7 +24,8 @@ namespace GameEngine
         static Stopwatch timer;
         internal static List<ConsoleKeyInfo> keys;
         internal static IDisplay display;
-
+        //private NativeMethods.ConsoleHandle _handler;
+        
         public static Position cameraPosition {
             get {
                 return display.GetCameraPosition();
@@ -45,6 +48,7 @@ namespace GameEngine
 
         internal static void Start()
         {
+            Utils.SetConsoleMode();
             SceneManager.AddScene(new Scene(new GameObject[0]));
             Type[] types = new Type[2];
             types[0] = typeof(Player);
@@ -84,7 +88,7 @@ namespace GameEngine
 
                 keys.Clear();
                 if (Console.KeyAvailable) {
-                    while (Console.KeyAvailable) keys.Add(Console.ReadKey(true));
+                    while (Console.KeyAvailable) keys.Add(Utils.GetRawInput().key);
                 }
                 InputManager.keys = keys;
 
@@ -143,6 +147,7 @@ namespace GameEngine
 
     public static class Utils
     {
+        private static NativeMethods.ConsoleHandle _handler;
         public static bool TileFree(int x, int y)
         {
             foreach(var pos in (from o in SceneManager.Scenes[SceneManager.currentScene].Objects where o.hasCollision select o.position))
@@ -178,9 +183,49 @@ namespace GameEngine
             return null;
         }
 
-       
+        internal static KeyWrapper GetRawInput() 
+        {
+            UInt32 events = 0;
+            NativeMethods.GetNumberOfConsoleInputEvents(_handler, out events);
 
+            if (events > 0)
+            {
+                var record = new NativeMethods.INPUT_RECORD();
+                uint recordLen = 0;
+                if (!(NativeMethods.ReadConsoleInput(_handler, ref record, 1, ref recordLen))) { throw new Win32Exception(); }
+
+                return new KeyWrapper(new ConsoleKeyInfo(record.KeyEvent.UnicodeChar, 
+                    (ConsoleKey)record.KeyEvent.wVirtualKeyCode,
+                    1 << 4 == (record.KeyEvent.dwControlKeyState & 1 << 4), 
+                    (1 << 1 == (record.KeyEvent.dwControlKeyState & 1 << 1)) || (1 << 0 == (record.KeyEvent.dwControlKeyState & 1 << 0)), 
+                    1 << 3 == (record.KeyEvent.dwControlKeyState & 1 << 3) || (1 << 2 == (record.KeyEvent.dwControlKeyState & 1 << 2))));
+            }
+            return null;
+        }
+
+        internal static void SetConsoleMode()
+        {
+            _handler = NativeMethods.GetStdHandle(NativeMethods.STD_INPUT_HANDLE);
+
+            int mode = 0;
+            if (!(NativeMethods.GetConsoleMode(_handler, ref mode))) { throw new Win32Exception(); }
+
+            mode |= NativeMethods.ENABLE_MOUSE_INPUT;
+            mode &= ~NativeMethods.ENABLE_QUICK_EDIT_MODE;
+            mode |= NativeMethods.ENABLE_EXTENDED_FLAGS;
+
+            if (!(NativeMethods.SetConsoleMode(_handler, mode))) { throw new Win32Exception(); }
+        }
     }
+
+    internal class KeyWrapper {
+        public ConsoleKeyInfo key;
+
+        public KeyWrapper(ConsoleKeyInfo key) {
+            this.key = key;
+        }
+    }
+    
     internal class NativeMethods
     {
         public const Int32 STD_INPUT_HANDLE = -10;
@@ -251,7 +296,7 @@ namespace GameEngine
                 return true; // Releasing console handle is not our business
             }
         }
-
+        
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern Boolean GetConsoleMode(ConsoleHandle hConsoleHandle, ref Int32 lpMode);
@@ -264,9 +309,9 @@ namespace GameEngine
         public static extern Boolean ReadConsoleInput(ConsoleHandle hConsoleInput, ref INPUT_RECORD lpBuffer, UInt32 nLength, ref UInt32 lpNumberOfEventsRead);
 
         //Currently unused
-        //[DllImport("kernel32.dll", SetLastError = true)]
-        //[return: MarshalAs(UnmanagedType.Bool)]
-        //public static extern Boolean PeekConsoleInput(ConsoleHandle hConsoleInput, ref INPUT_RECORD lpBuffer, UInt32 nLength, ref UInt32 lpNumberOfEventsRead);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern Boolean PeekConsoleInput(ConsoleHandle hConsoleInput, ref INPUT_RECORD lpBuffer, UInt32 nLength, ref UInt32 lpNumberOfEventsRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
