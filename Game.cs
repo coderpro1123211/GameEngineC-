@@ -50,12 +50,10 @@ namespace GameEngine
             types[0] = typeof(Player);
             types[1] = typeof(Wall);
             SceneManager.AddScene(new Scene());
-            //MapManager.loadMapFromFile(@"C:\Users\Alexander\Source\Repos\GameEngineC-2\Maps\map.txt", types);
-            //MapManager.loadMapFromFile(@"C:\Users\Alexander\Source\Repos\GameEngineC-2\Maps\square.txt", types);
-            //SceneManager.LoadMap(1, 0, -7);
-            //SceneManager.LoadMap(0, -3, 0);
-            MapManager.loadMapFromFile(@"C:/Users/Alexander/Source/Repos/GameEngineC-2/Maps/Guy.txt", types);
-            SceneManager.LoadMap(0, 0, 0);
+            MapManager.loadMapFromFile(@"Maps\map.txt", types);
+            MapManager.loadMapFromFile(@"Maps\square.txt", types);
+            SceneManager.LoadMap(1, 0, -7);
+            SceneManager.LoadMap(0, -3, 0);
             keys = new List<ConsoleKeyInfo>();
             InputManager.lastKeys = new List<ConsoleKeyInfo>();
             Console.CursorVisible = false;
