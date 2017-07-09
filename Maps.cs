@@ -31,7 +31,7 @@ namespace GameEngine
             { 
                 for (int x=0;x<width;x++)
                 {
-                    mapData[x, y] = int.Parse(aFileData[x+(y*height)]);
+                    mapData[x, y] = int.Parse(aFileData[x+(y*width)]);
                 }
             }
 
