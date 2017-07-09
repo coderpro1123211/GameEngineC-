@@ -22,7 +22,7 @@ namespace GameEngine
         public static bool IsRunning {get; private set;}
         static Thread worker;
         static Stopwatch timer;
-        internal static List<ConsoleKeyInfo> keys;
+        internal static List<KeyWrapper> keys;
         internal static IDisplay display;
         //private NativeMethods.ConsoleHandle _handler;
         
@@ -58,8 +58,8 @@ namespace GameEngine
             MapManager.loadMapFromFile(@"Maps\square.txt", types);
             SceneManager.LoadMap(1, 0, -7);
             SceneManager.LoadMap(0, -3, 0);
-            keys = new List<ConsoleKeyInfo>();
-            InputManager.lastKeys = new List<ConsoleKeyInfo>();
+            keys = new List<KeyWrapper>();
+            InputManager.lastKeys = new List<KeyWrapper>();
             Console.CursorVisible = false;
             timer = new Stopwatch();
             worker = new Thread(WorkerLoop);
@@ -88,7 +88,7 @@ namespace GameEngine
 
                 keys.Clear();
                 if (Console.KeyAvailable) {
-                    while (Console.KeyAvailable) keys.Add(Utils.GetRawInput().key);
+                    while (Console.KeyAvailable) keys.Add(Utils.GetRawInput());
                 }
                 InputManager.keys = keys;
 
@@ -104,7 +104,7 @@ namespace GameEngine
 #endregion
 
                 if (InputManager.lastKeys == null) {
-                    InputManager.lastKeys = new List<ConsoleKeyInfo>();
+                    InputManager.lastKeys = new List<KeyWrapper>();
                 }
 
                 InputManager.lastKeys.Clear();
@@ -116,8 +116,8 @@ namespace GameEngine
     }
 
     public static class InputManager {
-        internal static List<ConsoleKeyInfo> lastKeys;
-        internal static List<ConsoleKeyInfo> keys;
+        internal static List<KeyWrapper> lastKeys;
+        internal static List<KeyWrapper> keys;
 
         public static bool AnyKeyDown {
             get {
@@ -126,17 +126,17 @@ namespace GameEngine
         }
 
         public static bool GetKey(ConsoleKey key) {
-            return (from k in keys where k.Key == key select k).Count() > 0;
+            return (from k in keys where k.key == key && k.keyDown select k).Count() > 0;
         }
 
         public static bool GetKeyPressed(ConsoleKey key)
         {
-            return ((from k in keys where k.Key == key select k).Count() == 1) && ((from k in lastKeys where k.Key == key select k).Count() == 0);
+            return ((from k in keys where k.key == key && k.keyDown select k).Count() == 1) && ((from k in lastKeys where k.key == key && k.keyDown select k).Count() == 0);
         }
 
         public static bool GetKeyReleased(ConsoleKey key)
         {
-            return ((from k in keys where k.Key == key select k).Count() < 1) && ((from k in lastKeys where k.Key == key select k).Count() > 0);
+            return ((from k in keys where k.key == key && k.keyDown select k).Count() < 1) && ((from k in lastKeys where k.key == key && k.keyDown select k).Count() > 0);
         }
     }
 
@@ -194,11 +194,12 @@ namespace GameEngine
                 uint recordLen = 0;
                 if (!(NativeMethods.ReadConsoleInput(_handler, ref record, 1, ref recordLen))) { throw new Win32Exception(); }
 
-                return new KeyWrapper(new ConsoleKeyInfo(record.KeyEvent.UnicodeChar, 
+                /*return new KeyWrapper(new ConsoleKeyInfo(record.KeyEvent.UnicodeChar, 
                     (ConsoleKey)record.KeyEvent.wVirtualKeyCode,
                     1 << 4 == (record.KeyEvent.dwControlKeyState & 1 << 4), 
                     (1 << 1 == (record.KeyEvent.dwControlKeyState & 1 << 1)) || (1 << 0 == (record.KeyEvent.dwControlKeyState & 1 << 0)), 
-                    1 << 3 == (record.KeyEvent.dwControlKeyState & 1 << 3) || (1 << 2 == (record.KeyEvent.dwControlKeyState & 1 << 2))));
+                    1 << 3 == (record.KeyEvent.dwControlKeyState & 1 << 3) || (1 << 2 == (record.KeyEvent.dwControlKeyState & 1 << 2))));*/
+                return new KeyWrapper((ConsoleKey)record.KeyEvent.wVirtualKeyCode, record.KeyEvent.bKeyDown);
             }
             return null;
         }
@@ -219,10 +220,12 @@ namespace GameEngine
     }
 
     internal class KeyWrapper {
-        public ConsoleKeyInfo key;
+        public bool keyDown;
+        public ConsoleKey key;
 
-        public KeyWrapper(ConsoleKeyInfo key) {
+        public KeyWrapper(ConsoleKey key, bool keyDown) {
             this.key = key;
+            this.keyDown = keyDown;
         }
     }
     
