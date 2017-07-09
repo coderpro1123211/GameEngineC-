@@ -50,8 +50,8 @@ namespace GameEngine
             types[0] = typeof(Player);
             types[1] = typeof(Wall);
             SceneManager.AddScene(new Scene());
-            MapManager.loadMapFromFile(@"map.txt", types);
-            MapManager.loadMapFromFile(@"square.txt", types);
+            MapManager.loadMapFromFile(@"Maps\map.txt", types);
+            MapManager.loadMapFromFile(@"Maps\square.txt", types);
             SceneManager.LoadMap(1, 0, -7);
             SceneManager.LoadMap(0, -3, 0);
             keys = new List<ConsoleKeyInfo>();
